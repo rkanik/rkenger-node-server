@@ -37,3 +37,7 @@ export const createFind = (Model: TModel, { query }: IOptions) => {
 	find = find.select(select)
 	return find
 }
+
+import * as auth from './auth.controller'
+
+export { auth }

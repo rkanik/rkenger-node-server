@@ -1,6 +1,7 @@
 import mongoose, { Schema } from 'mongoose'
 import { _regex } from '../regexs'
 import { EProviders, ERoles, IUser, IUserDoc } from '@types'
+import { password } from '@helpers'
 
 const userSchemaFields: Record<keyof IUser, any> = {
 	name: {
@@ -30,6 +31,16 @@ const userSchemaFields: Record<keyof IUser, any> = {
 		default: EProviders.Local
 	},
 	friends: [{
+		friend: {
+			type: Schema.Types.ObjectId,
+			ref: 'User',
+		},
+		acceptedAt: {
+			type: Date,
+			required: true
+		}
+	}],
+	requests: [{
 		type: Schema.Types.ObjectId,
 		ref: 'User',
 	}],
@@ -62,6 +73,16 @@ userSchema.index({
 	name: 'text',
 	email: 'text',
 	phone: 'text'
+})
+
+userSchema.pre('save', async function (next) {
+	const user: IUserDoc = this as IUserDoc
+	if (user.password && user.isModified('password')) {
+		const { hash, error } = await password(user.password).hash()
+		if (!error) user.password = hash
+		else return next(error)
+	}
+	return next()
 })
 
 const Users = mongoose.model<IUserDoc>('User', userSchema)

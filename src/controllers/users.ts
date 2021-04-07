@@ -2,7 +2,6 @@ import status, { StatusCodes } from 'http-status-codes'
 import { Users } from '../models'
 import { handleRequest, parseMongoError, toError, toSuccess } from '@helpers'
 import { createFind } from '@helpers'
-import { Request } from 'express'
 import { IUserDoc, Populated } from '@types'
 
 const { OK, UNPROCESSABLE_ENTITY, CREATED, INTERNAL_SERVER_ERROR } = StatusCodes
@@ -13,8 +12,8 @@ export const usersController = {
 
 		const total = await count
 		const users = await find
-			.populate('friends')
-			.populate('image') as Populated<IUserDoc, 'friends' | 'image'>[]
+			.populate('friends.friend')
+			.populate('image')
 
 		return res.success({
 			pagination: {

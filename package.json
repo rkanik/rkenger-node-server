@@ -69,6 +69,7 @@
     "@consts": "src/consts",
     "@helpers": "src/helpers",
     "@types": "src/types",
+    "@errors": "src/errors",
     "@router": "src/router",
     "@models": "src/models",
     "@controllers": "src/controllers"

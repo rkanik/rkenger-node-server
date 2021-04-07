@@ -1,4 +1,4 @@
-import { Request } from 'express'
+import { Request, Response } from 'express'
 import { Model, Document, Types } from "mongoose"
 import { response } from '@helpers'
 
@@ -9,7 +9,7 @@ export interface IResponse {
 	data?: { [key: string]: any },
 	error?: IError;
 }
-export type ExecuteFunction = (req: Request, res: typeof response) => Promise<IResponse>
+export type ExecuteFunction = (req: Request, res: typeof response, oRes: Response) => Promise<IResponse>
 export type TResponseFunc = {
 	status(code: number): {
 		error(error: IError): {
@@ -63,11 +63,16 @@ export type TMessageType = keyof typeof EMessageTypes
 export type TRoles = keyof typeof ERoles
 export type TProviders = keyof typeof EProviders
 export type TGender = keyof typeof EGenders
+
+export type TAnyObject<type> = { [key: string]: type }
+export type TOr<type> = { $or: TAnyObject<type>[] }
+
 export type Select<M, K extends keyof M> = Pick<M, K> & Document
 export type Populated<M, K extends keyof M> =
 	Omit<M, K> & {
 		[P in K]: Exclude<M[P], TId[] | TId>
 	}
+
 
 export interface IImageDoc extends IImage, Document { }
 export interface IImage {
@@ -105,7 +110,11 @@ export interface IUser {
 	username: string
 	emailVerified: boolean
 	provider: TProviders
-	friends: TId[] | IUserDoc[]
+	friends: {
+		friend: TId[] | IUserDoc[],
+		acceptedAt: Date
+	},
+	requests: TId[] | IUserDoc[],
 
 	image?: IImage
 	externalId?: string

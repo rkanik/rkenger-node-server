@@ -1,25 +1,61 @@
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 import { getReasonPhrase } from 'http-status-codes'
+import { _jwtSecret, _saltRounds } from '@consts'
 
 import { NextFunction, Request, Response } from 'express'
-import { ExecuteFunction, IError, IResponse } from '@types'
+import { ExecuteFunction, IError, IResponse, TAnyObject } from '@types'
 import { Query, Document } from 'mongoose'
 
-export const isEmpty = (val: any) => {
+export const object = (object: TAnyObject<any>) => {
+	return {
+		partial(...keys: string[]) {
+			return keys.reduce((newObject, key) => {
+				return {
+					...newObject,
+					[key]: object[key]
+				}
+			}, {})
+		}
+	}
+}
+
+export const token = {
+	generate: (data: any, expiresIn = '7d') => jwt.sign(data, _jwtSecret, { expiresIn }),
+	verify: (token: string) => new Promise<boolean | any>(res => {
+		jwt.verify(token, _jwtSecret, (err, decoded) => res(err ? false : (decoded || false)));
+	})
+}
+
+export const password = (password: string) => {
+	return {
+		hash: () => new Promise<{ hash: string, error: Error }>(res => {
+			bcrypt.hash(password, _saltRounds, (error, hash) => {
+				res({ hash, error })
+			});
+		}),
+		compare: (string: string) => new Promise<boolean>(res => {
+			bcrypt.compare(string, password, (err, result) => {
+				res(err ? false : result)
+			});
+		})
+	}
+}
+
+export const isEmpty = (val: any): boolean => {
+	if ([undefined, null, NaN, ''].includes(val)) return true
 	if (Array.isArray(val) && !val.length) return true
-	if (typeof val === 'object' && !Object.keys(val).length) return true
-	return [undefined, null, NaN, ''].includes(val)
+	if (((typeof val === "object" || typeof val === 'function') && (val !== null)) && !Object.keys(val).length) return true
+	return false
 }
 
 export const comparePassword = (encrypted: string, data: string) => {
-	console.log('comparePassword', encrypted, data)
 	return new Promise(resolve => {
 		bcrypt.compare(data, encrypted, (_, same: boolean) => {
 			return resolve(same)
 		});
 	})
 }
-
 export class HTTPError extends Error {
 	statusCode: number
 	statusText: string
@@ -89,7 +125,7 @@ export const handleRequest = (execute: ExecuteFunction) =>
 	async (req: Request, res: Response, next: NextFunction) => {
 		try {
 			// Executing the request
-			const { error, code, data }: IResponse = await execute(req, response)
+			const { error, code, data }: IResponse = await execute(req, response, res)
 
 			// Throwing error 
 			if (error) {

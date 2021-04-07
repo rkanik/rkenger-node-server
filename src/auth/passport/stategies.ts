@@ -4,29 +4,12 @@ import { Strategy as LocalStrategy } from 'passport-local'
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
 import { Strategy as GitHubStrategy } from 'passport-github2'
 
-import Users from '../../models/users'
+import Users from '@models/users'
 import { githubConfig, googleConfig } from './configs';
 import { Profile } from 'passport'
+import { auth } from '@controllers'
 
-export const localStrategy = new LocalStrategy(async (username, password, done) => {
-	try {
-		let user = await Users
-			.findOne({ username })
-			.select('username provider password')
-
-		console.log('LocalStrategy', user)
-
-		if (!user) return done(null, false, { message: 'Incorrect username.' });
-		// if (!user.password) return done(null, false, { message: 'Password is not set.' })
-
-		// if (!(await comparePassword(user.password, password))) {
-		// 	return done(null, false, { message: 'Incorrect password.' });
-		// }
-
-		return done(null, user);
-	}
-	catch (err) { return done(err) }
-})
+export const localStrategy = new LocalStrategy(auth.logIn)
 
 export const googleStrategy = new GoogleStrategy(googleConfig,
 	async (request, accessToken, refreshToken, profile, done) => {

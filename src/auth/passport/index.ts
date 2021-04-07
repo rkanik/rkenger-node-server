@@ -1,5 +1,5 @@
 import passport from 'passport'
-import { CallbackError } from 'mongoose';
+import { Document, CallbackError } from 'mongoose';
 
 import {
 	localStrategy,
@@ -14,20 +14,9 @@ passport.use(localStrategy)
 passport.use(googleStrategy)
 passport.use(githubStrategy)
 
-passport.serializeUser((user: any, done) => {
-	done(null, user._id);
-});
-
-passport.deserializeUser(function (id, done) {
-	Users.findById(id, (err: CallbackError, user: any) => {
-		console.log(
-			new Date().toLocaleTimeString(),
-			'deserializeUser',
-			user.name,
-			user.provider
-		)
-		done(err, user);
-	});
-});
+passport.serializeUser((user: any, done) => done(null, user._id))
+passport.deserializeUser((id, done) => {
+	Users.findById(id, 'name role', {}, (err: CallbackError, user: any) => done(err, user))
+})
 
 export default passport

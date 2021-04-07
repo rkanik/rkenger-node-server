@@ -32,6 +32,9 @@
 			"@types": [
 				"types.ts"
 			],
+			"@errors": [
+				"errors.ts"
+			],
 			"@router/*": [
 				"router/*"
 			],
@@ -39,7 +42,7 @@
 				"models/*"
 			],
 			"@controllers": [
-				"controllers/*"
+				"controllers/index.ts"
 			],
 		}
 	},

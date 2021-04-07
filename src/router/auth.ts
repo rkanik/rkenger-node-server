@@ -1,9 +1,9 @@
-import { Router } from 'express'
 import passport from 'passport'
+import { Router } from 'express'
 import { authProviders } from '../auth/passport/configs'
 import { _isDev } from '@consts'
 
-import Users from '@models/users'
+import { auth } from "@controllers"
 
 const router = Router()
 
@@ -12,20 +12,10 @@ router.route('/')
 		res.json({ Auth: true })
 	})
 
-router.post('/signin',
-	passport.authenticate('local'),
-	(req, res) => {
-		res.status(200).json({
-			success: true,
-			data: req.user
-		})
-	}
-)
+router.post('/login', auth.verifyAuth, passport.authenticate('local'), auth.onLoggedIn)
+router.post('/register', auth.signup)
 
-router.get('/signout', (req, res) => {
-	req.logout();
-	res.redirect('/');
-});
+router.get('/logout', auth.signout);
 
 
 for (let { name, options } of authProviders) {
@@ -41,23 +31,5 @@ for (let { name, options } of authProviders) {
 		})
 	)
 }
-
-router.post('/signup', async (req, res) => {
-
-	await Users.init()
-
-	let user = new Users(req.body)
-
-	// let isValid = user.validateSync()
-
-	// console.log('/auth/signup', user, isValid)
-
-	// if (!isValid) return res.json({ error: true, message: 'User not valid' })
-
-	let newUser = await user.save()
-
-	res.json(newUser)
-})
-
 
 export default router
