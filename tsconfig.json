@@ -1,0 +1,51 @@
+{
+	"compilerOptions": {
+		"baseUrl": "./src",
+		"emitDecoratorMetadata": true,
+		"esModuleInterop": true,
+		"experimentalDecorators": true,
+		"importHelpers": true,
+		"module": "commonjs",
+		"outDir": "dist",
+		"removeComments": true,
+		"sourceMap": true,
+		"strict": true,
+		"target": "es6",
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"types": [
+			"node"
+		],
+		"typeRoots": [
+			"node_modules/@types"
+		],
+		"paths": {
+			"@src": [
+				"/*"
+			],
+			"@consts": [
+				"consts.ts"
+			],
+			"@helpers": [
+				"helpers.ts"
+			],
+			"@types": [
+				"types.ts"
+			],
+			"@router/*": [
+				"router/*"
+			],
+			"@models/*": [
+				"models/*"
+			],
+			"@controllers": [
+				"controllers/*"
+			],
+		}
+	},
+	"include": [
+		"src/**/*.ts",
+		"src/regexs.ts"
+	],
+	"exclude": [],
+}
