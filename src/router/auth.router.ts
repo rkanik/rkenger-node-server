@@ -1,22 +1,24 @@
 import passport from 'passport'
 import { Router } from 'express'
+import { AuthController } from "@controllers"
 import { authProviders } from '../auth/passport/configs'
 import { _isDev } from '@consts'
 
-import { auth } from "@controllers"
 
 const router = Router()
 
 router.route('/')
-	.get((_, res) => {
-		res.json({ Auth: true })
-	})
+	.get(AuthController.isAuthenticated)
 
-router.post('/login', auth.verifyAuth, passport.authenticate('local'), auth.onLoggedIn)
-router.post('/register', auth.signup)
+router.post('/login',
+	AuthController.verifyAuth,
+	passport.authenticate('local'),
+	AuthController.onLoggedIn
+)
 
-router.get('/logout', auth.signout);
-
+router.post('/register', AuthController.signup)
+router.post('/logout', AuthController.signout);
+router.post('/refresh-token', AuthController.newToken)
 
 for (let { name, options } of authProviders) {
 	router.get(`/${name}`, options

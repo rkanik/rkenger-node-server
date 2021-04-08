@@ -25,6 +25,4 @@ const imagesSchemaFields: Record<keyof IImage, any> = {
 }
 
 const imageSchema = new Schema(imagesSchemaFields, { timestamps: true })
-
-const Images = mongoose.model<IImageDoc>('Image', imageSchema)
-export default Images
+export const Images = mongoose.model<IImageDoc>('Image', imageSchema)

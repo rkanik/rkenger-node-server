@@ -35,14 +35,17 @@
 			"@errors": [
 				"errors.ts"
 			],
-			"@router/*": [
-				"router/*"
+			"@router": [
+				"router/index.ts"
 			],
-			"@models/*": [
-				"models/*"
+			"@models": [
+				"models/index.ts"
 			],
 			"@controllers": [
 				"controllers/index.ts"
+			],
+			"@middlewares": [
+				"middlewares/index.ts"
 			],
 		}
 	},

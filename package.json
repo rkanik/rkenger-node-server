@@ -15,6 +15,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "accesscontrol": "^2.2.1",
     "bcrypt": "^5.0.1",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
@@ -72,6 +73,7 @@
     "@errors": "src/errors",
     "@router": "src/router",
     "@models": "src/models",
-    "@controllers": "src/controllers"
+    "@controllers": "src/controllers",
+    "@middlewares": "src/middlewares"
   }
 }

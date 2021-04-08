@@ -5,8 +5,8 @@ import { Router } from 'express'
 const { UNAUTHORIZED } = statusCodes
 
 // Routers
-import AuthRouter from './auth'
-import UsersRouter from './users'
+import AuthRouter from './auth.router'
+import UsersRouter from './users.router'
 
 // Helpers
 import { HTTPError } from '@helpers'

@@ -1,25 +1,26 @@
 import errors from '@errors'
-import Users from '@models/users'
 import statusCodes from 'http-status-codes'
-import { NextFunction, Request, Response } from 'express'
+import { Users, RefreshTokens } from '@models'
 import { VerifyFunction } from 'passport-local'
-import { IUserDoc, TOr } from '@types'
+import { NextFunction, Request, Response } from 'express'
+import { IRefreshTokenDoc, IUserDoc, TOr } from '@types'
 import { _time } from '@consts'
 import {
-	handleRequest,
+	token,
+	object,
+	isEmpty,
 	HTTPError,
+	handleRequest,
 	parseMongoError,
 	password as bPassword,
-	token,
-	object
 } from '@helpers'
 
 const {
-	NOT_FOUND,
-	UNPROCESSABLE_ENTITY,
 	CREATED,
+	NOT_FOUND,
+	UNAUTHORIZED,
+	UNPROCESSABLE_ENTITY,
 	INTERNAL_SERVER_ERROR,
-	UNAUTHORIZED
 } = statusCodes
 
 export const logIn: VerifyFunction = async (username: string, password: string, done) => {
@@ -43,12 +44,24 @@ export const onLoggedIn = handleRequest(async (req, res, oRes) => {
 	if (!req.user) return res.error({ message: 'Something bad happended.' })
 	const user: IUserDoc = req.user as IUserDoc
 
+	let refreshToken
 	const accessToken = token.generate(object(user).partial('_id', 'role', 'name'))
+	const eRefreshToken = await RefreshTokens.findOne({ user: user._id })
+
+	if (eRefreshToken) refreshToken = eRefreshToken.token
+	else {
+		refreshToken = token.generate({ user: { _id: user._id } }, '100y')
+		RefreshTokens.create({ user: user._id, token: refreshToken })
+	}
+
+	oRes.cookie('user-id', user._id, { maxAge: _time.day * 7 })
 	oRes.cookie('access-token', accessToken, { maxAge: _time.day * 7 })
+	oRes.cookie('refresh-token', refreshToken, { maxAge: _time.year * 100 })
 
 	return res.success({
 		user,
 		accessToken,
+		refreshToken,
 		expiresIn: _time.day * 7
 	})
 })
@@ -56,13 +69,20 @@ export const onLoggedIn = handleRequest(async (req, res, oRes) => {
 export const verifyAuth = async (req: Request, res: Response, next: NextFunction) => {
 	const isAuth = req.isAuthenticated()
 	const accessToken = req.cookies['access-token']
+	const refreshToken = req.cookies['refresh-token']
 	const decodedToken = await token.verify(req.cookies['access-token'])
 	if (isAuth && decodedToken) return res.json({
-		user: req.user, accessToken,
+		user: req.user,
+		accessToken, refreshToken,
 		expiresIn: decodedToken.exp
 	})
 	return next()
 }
+
+export const isAuthenticated = handleRequest(async (req, res) => {
+	if (req.isAuthenticated()) return res.success({ message: 'Authenticated' })
+	return res.status(UNAUTHORIZED).error({ message: 'Unauthorized' })
+})
 
 export const signup = handleRequest(async (req, res) => {
 
@@ -101,6 +121,36 @@ export const signup = handleRequest(async (req, res) => {
 		}
 		return res.status(INTERNAL_SERVER_ERROR).error(error.message)
 	}
+})
+
+export const newToken = handleRequest(async (req, res, oRes) => {
+	if (isEmpty(req.body) || !req.body.refreshToken) return res.status(UNPROCESSABLE_ENTITY).error({
+		message: 'Request body must have a refresh token'
+	})
+
+	let refreshToken = await RefreshTokens
+		.findOne({ token: req.body.refreshToken })
+		.populate({ path: 'user', select: 'name role' }) as IRefreshTokenDoc
+
+	if (!refreshToken) return res.status(NOT_FOUND).error({ message: 'Refresh Token not found' })
+	const decodedToken = await token.verify(refreshToken.token)
+	if (!decodedToken) return res.status(UNAUTHORIZED).error({ message: 'Refresh token has been expired.' })
+
+
+	const user = refreshToken.user as IUserDoc
+	const accessToken = token.generate(object(user).partial('_id', 'role', 'name'))
+
+	oRes.cookie('user-id', user._id, { maxAge: _time.day * 7 })
+	oRes.cookie('access-token', accessToken, { maxAge: _time.day * 7 })
+	oRes.cookie('refresh-token', refreshToken.token, { maxAge: new Date(refreshToken.createdAt).getTime() - Date.now() })
+
+	return res.success({
+		user,
+		accessToken,
+		refreshToken: refreshToken.token,
+		expiresIn: _time.day * 7
+	})
+
 })
 
 export const signout = handleRequest(async (req, res) => {

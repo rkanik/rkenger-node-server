@@ -58,11 +58,18 @@ export enum EGenders {
 	Others = 'others'
 }
 
+export enum EColors {
+	Gray = 'gray',
+	Teal = 'teal',
+	Blue = 'blue'
+}
+
 export type TId = Types.ObjectId
 export type TMessageType = keyof typeof EMessageTypes
 export type TRoles = keyof typeof ERoles
 export type TProviders = keyof typeof EProviders
 export type TGender = keyof typeof EGenders
+export type TColor = keyof typeof EColors
 
 export type TAnyObject<type> = { [key: string]: type }
 export type TOr<type> = { $or: TAnyObject<type>[] }
@@ -74,7 +81,27 @@ export type Populated<M, K extends keyof M> =
 	}
 
 
-export interface IImageDoc extends IImage, Document { }
+/**
+ * ===========================================================
+ * === === === === === === Interfaces === === === === === ===
+ * ===========================================================
+ */
+
+export interface IRefreshTokenDoc extends IRefreshToken, Document {
+	_id: string
+	createdAt: Date
+	updatedAt: Date
+}
+export interface IRefreshToken {
+	user: TId | IUserDoc,
+	token: string
+}
+
+export interface IImageDoc extends IImage, Document {
+	_id: string
+	createdAt: Date
+	updatedAt: Date
+}
 export interface IImage {
 	title: string
 	url: string
@@ -87,20 +114,6 @@ export interface IVideo extends IImage { }
 
 export interface IVoice {
 	url: string
-}
-
-export interface IForeignUser {
-	_id: TId
-	name: string
-	thumb?: string
-}
-
-export interface IFriend extends IForeignUser {
-	acceptedAt: Date
-}
-
-export interface IMember extends IForeignUser {
-	addedBy: IForeignUser
 }
 
 export interface IUser {
@@ -116,41 +129,69 @@ export interface IUser {
 	},
 	requests: TId[] | IUserDoc[],
 
-	image?: IImage
+	image?: TId | IImage
 	externalId?: string
 	password?: string
 	phone?: string
 	gender?: TGender
 	dob?: Date
 }
-export interface IUserDoc extends IUser, Document { }
+export interface IUserDoc extends IUser, Document {
+	_id: string
+	createdAt: Date
+	updatedAt: Date
+}
 
+export interface IMessageDoc extends IMessage, Document {
+	createdAt: Date
+	updatedAt: Date
+}
 export interface IMessage {
 	type: TMessageType
-	seenBy: TId[]
-	sender: IForeignUser
-
 	text?: string
 	image?: IImage
 	video?: IVideo
 	link?: string
-	voice?: IVoice
-	isReply?: boolean
-	deletedAt?: Date
+	voice?: {
+		duration: number
+		url: string
+	}
+
+	sender: TId | IUserDoc
+	seenBy?: TId[] | IUserDoc[]
+	replied?: {
+		by: TId | IUserDoc,
+		to: TId | IMessageDoc
+	}
+	forwardedBy?: TId | IUserDoc
+	deletedBy?: TId[] | IUserDoc[]
+	isUnsent?: boolean
 }
 
+export interface IConversationDoc extends IConversation, Document {
+	createdAt: Date
+	updatedAt: Date
+}
 export interface IConversation {
-	color: string
+	color: TColor
 	emoji: string
-	mutedBy: TId[]
-	members: IMember[]
-	messages: IMessage[]
+	isGroup: boolean
+	createdBy: TId | IUserDoc
+	mutedBy: {
+		user: TId | IUserDoc
+		unMuteAt?: Date
+	}[]
+	deletedBy: TId | IUserDoc
+	members: {
+		user: TId[] | IUserDoc[]
+		addedBy: TId | IUserDoc
+		removedAt?: Date
+	}[]
+	messages: TId[] | IMessageDoc[]
 
 	name?: string
 	image?: IImage
 }
-
-export interface IGroup extends IConversation { }
 
 export interface IError {
 	message: string

@@ -1,5 +1,5 @@
 import passport from 'passport'
-import { Document, CallbackError } from 'mongoose';
+import { CallbackError } from 'mongoose';
 
 import {
 	localStrategy,
@@ -7,7 +7,7 @@ import {
 	githubStrategy,
 } from './stategies'
 
-import Users from '../../models/users'
+import { Users } from '@models'
 
 // Stategies
 passport.use(localStrategy)
@@ -16,7 +16,9 @@ passport.use(githubStrategy)
 
 passport.serializeUser((user: any, done) => done(null, user._id))
 passport.deserializeUser((id, done) => {
-	Users.findById(id, 'name role', {}, (err: CallbackError, user: any) => done(err, user))
+	Users.findById(id, 'name role', {},
+		(err: CallbackError, user: any) => done(err, user)
+	)
 })
 
 export default passport

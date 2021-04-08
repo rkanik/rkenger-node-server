@@ -4,12 +4,13 @@ import { Strategy as LocalStrategy } from 'passport-local'
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
 import { Strategy as GitHubStrategy } from 'passport-github2'
 
-import Users from '@models/users'
+import { Users } from '@models'
+import { AuthController } from '@controllers'
+
 import { githubConfig, googleConfig } from './configs';
 import { Profile } from 'passport'
-import { auth } from '@controllers'
 
-export const localStrategy = new LocalStrategy(auth.logIn)
+export const localStrategy = new LocalStrategy(AuthController.logIn)
 
 export const googleStrategy = new GoogleStrategy(googleConfig,
 	async (request, accessToken, refreshToken, profile, done) => {
