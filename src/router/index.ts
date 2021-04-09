@@ -7,6 +7,7 @@ const { UNAUTHORIZED } = statusCodes
 // Routers
 import AuthRouter from './auth.router'
 import UsersRouter from './users.router'
+import ConversationsRouter from './conversations.router'
 
 // Helpers
 import { HTTPError } from '@helpers'
@@ -16,6 +17,7 @@ const router = Router()
 
 router.use('/api/v1/auth', AuthRouter)
 router.use('/api/v1/users', UsersRouter)
+router.use('/api/v1/conversations', ConversationsRouter)
 
 const indexHtml = _isProd
 	? path.join(__dirname, '../public/index.html')

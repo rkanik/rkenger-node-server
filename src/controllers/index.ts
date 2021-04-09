@@ -1,2 +1,5 @@
 export * as AuthController from './auth.controller'
-export * as UserController from './users.controller'
+export * as UsersController from './users.controller'
+export * as ConversationsController from './coversations.controller'
+export * as MessagesController from './messages.controller'
+export * as ImagesController from './images.controller'

@@ -181,7 +181,7 @@ export interface IConversation {
 		user: TId | IUserDoc
 		unMuteAt?: Date
 	}[]
-	deletedBy: TId | IUserDoc
+	deletedBy?: TId | IUserDoc
 	members: {
 		user: TId[] | IUserDoc[]
 		addedBy: TId | IUserDoc

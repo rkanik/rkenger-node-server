@@ -1,18 +1,18 @@
 import { Router } from 'express'
-import { UserController } from '@controllers'
+import { UsersController } from '@controllers'
 import { verifyToken } from '@middlewares'
 
 const router = Router()
 
 router.route('/')
-	.get(verifyToken, UserController.findAll)
-	.post(verifyToken, UserController.create)
+	.get(verifyToken, UsersController.findAll)
+	.post(verifyToken, UsersController.create)
 
 router.route('/:_id')
-	.get(UserController.findById)
-	.put(UserController.updateById)
-	.patch(UserController.updateById)
-	.delete(UserController.deleteById)
+	.get(UsersController.findById)
+	.put(UsersController.updateById)
+	.patch(UsersController.updateById)
+	.delete(UsersController.deleteById)
 
 router.route('/send-request')
 

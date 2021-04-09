@@ -143,8 +143,7 @@ export const handleRequest = (execute: ExecuteFunction) =>
 	}
 
 export const createFind = (Model: any, query: any): {
-	page: number,
-	limit: number,
+	page: number, limit: number,
 	find: Query<Document<any>[], Document<any>>,
 	count: Query<number, Document<any>>,
 } => {
@@ -182,6 +181,42 @@ export const createFind = (Model: any, query: any): {
 	const count = Model.countDocuments(filter)
 
 	return { find, count, page, limit }
+
+}
+
+export const createFindOne = (Model: any, req: any, findById: boolean = false): Query<Document<any>[], Document<any>> => {
+
+	// Conditions
+	let filter: any = { _id: req.params._id }
+	if (req.query.role) filter.role = req.query.role
+
+	// Search
+	let hasQ = req.query.q && req.query.q !== ''
+	if (hasQ) filter.$text = { $search: req.query.q }
+
+	if (req.query.where) {
+		let where = JSON.parse(req.query.where)
+		filter = { ...filter, ...where }
+	}
+
+	let find = findById ? Model.findById(req.params._id) : Model.find(filter)
+
+	// Sorting
+	let sort: any = {}
+	if (req.query.sort) sort[req.query.sort.replace('-', '')] = req.query.sort.startsWith('-') ? -1 : 1
+	find = find.sort(isEmpty(sort) ? { createdAt: -1 } : sort)
+
+	// Pagination
+	let page = req.query.page ? req.query.page * 1 : 1
+	let limit = req.query.limit ? req.query.limit * 1 : 15
+	let skip = (page - 1) * limit
+	find = find.skip(skip).limit(limit)
+
+	// Projection
+	let select = req.query.select ? req.query.select.replace(/,/g, ' ') : '-__v'
+	find = find.select(select)
+
+	return find
 
 }
 

@@ -40,24 +40,26 @@ const conversationSchemaFields: Record<keyof IConversation, any> = {
 	}],
 	deletedBy: {
 		ref: 'User',
-		required: true,
 		type: Schema.Types.ObjectId,
 	},
-	members: [{
-		user: {
-			ref: 'User',
-			required: true,
-			type: Schema.Types.ObjectId,
-		},
-		addedBy: {
-			ref: 'User',
-			required: true,
-			type: Schema.Types.ObjectId,
-		},
-		removedAt: {
-			type: Date,
-		}
-	}],
+	members: {
+		required: true,
+		validate: [(val: []) => val.length > 1, 'Must have minimum two members'],
+		type: [{
+			user: {
+				ref: 'User',
+				required: true,
+				type: Schema.Types.ObjectId,
+			},
+			addedBy: {
+				ref: 'User',
+				type: Schema.Types.ObjectId,
+			},
+			removedAt: {
+				type: Date,
+			}
+		}]
+	},
 	messages: [{
 		ref: 'Message',
 		required: true,
@@ -65,12 +67,8 @@ const conversationSchemaFields: Record<keyof IConversation, any> = {
 	}]
 }
 
-const conversationSchema = new Schema(
-	conversationSchemaFields, {
-	timestamps: true,
-	autoIndex: true
-})
+const conversationSchema = new Schema(conversationSchemaFields, { timestamps: true })
 
-export const Coversations = model<IConversationDoc>(
-	'Coversation', conversationSchema
+export const Conversations = model<IConversationDoc>(
+	'Conversation', conversationSchema
 )

@@ -5,6 +5,7 @@ const messageSchemaFields: Record<keyof IMessage, any> = {
 	type: {
 		type: String,
 		required: true,
+		enum: ['text', 'voice', 'image', 'link', 'video'],
 		default: EMessageTypes.Text
 	},
 	text: {
