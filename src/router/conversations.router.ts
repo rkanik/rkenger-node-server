@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { ConversationsController } from '@controllers'
+import { ConversationsController, MessagesController } from '@controllers'
 import { verifyToken } from '@middlewares'
 
 const router = Router()
@@ -9,13 +9,13 @@ router.route('/')
 	.post(verifyToken, ConversationsController.create)
 
 router.route('/:_id')
-	.get(ConversationsController.findById)
+	.get(verifyToken, ConversationsController.findById)
 	// 	.put(UserController.updateById)
 	// 	.patch(UserController.updateById)
-	.delete(ConversationsController.deleteById)
+	.delete(verifyToken, ConversationsController.deleteById)
 
 router.route("/:_cid/messages")
-	.get()
-	.post()
+	.get(verifyToken, MessagesController.findAll)
+	.post(verifyToken, MessagesController.create)
 
 export default router

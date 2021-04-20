@@ -7,6 +7,10 @@ import { NextFunction, Request, Response } from 'express'
 import { ExecuteFunction, IError, IResponse, TAnyObject } from '@types'
 import { Query, Document } from 'mongoose'
 
+export const isObject = (value: any) => {
+	return Object.prototype.toString.call(value) === '[object Object]'
+}
+
 export const object = (object: TAnyObject<any>) => {
 	return {
 		partial(...keys: string[]) {
@@ -43,10 +47,11 @@ export const password = (password: string) => {
 }
 
 export const isEmpty = (val: any): boolean => {
-	if ([undefined, null, NaN, ''].includes(val)) return true
-	if (Array.isArray(val) && !val.length) return true
-	if (((typeof val === "object" || typeof val === 'function') && (val !== null)) && !Object.keys(val).length) return true
-	return false
+	if ([undefined, null, NaN].includes(val)) return true
+	if (typeof val === 'string') return !val.trim()
+	if (Array.isArray(val)) return !val.length
+	if (isObject(val)) return !Object.keys(val).length
+	return true
 }
 
 export const comparePassword = (encrypted: string, data: string) => {
@@ -145,7 +150,7 @@ export const handleRequest = (execute: ExecuteFunction) =>
 export const createFind = (Model: any, query: any): {
 	page: number, limit: number,
 	find: Query<Document<any>[], Document<any>>,
-	count: Query<number, Document<any>>,
+	count: Query<number, Document<any>>
 } => {
 
 	// Conditions

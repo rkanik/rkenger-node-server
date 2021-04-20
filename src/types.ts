@@ -112,10 +112,6 @@ export interface IImage {
 
 export interface IVideo extends IImage { }
 
-export interface IVoice {
-	url: string
-}
-
 export interface IUser {
 	name: string
 	email: string
@@ -152,10 +148,7 @@ export interface IMessage {
 	image?: IImage
 	video?: IVideo
 	link?: string
-	voice?: {
-		duration: number
-		url: string
-	}
+	voice?: string
 
 	sender: TId | IUserDoc
 	seenBy?: TId[] | IUserDoc[]

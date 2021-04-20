@@ -82,3 +82,24 @@ export const deleteById = handleRequest(async (req, res) => {
 		message: 'Deleted'
 	})
 })
+
+export const sendRequest = handleRequest(async (req, res) => {
+	
+	return res.success({
+		//
+	})
+})
+
+export const getRequests = handleRequest(async (req, res) => {
+	
+	return res.success({
+		//
+	})
+})
+
+export const acceptRequest = handleRequest(async (req, res) => {
+	
+	return res.success({
+		//
+	})
+})

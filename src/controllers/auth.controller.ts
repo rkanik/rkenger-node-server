@@ -159,3 +159,24 @@ export const signout = handleRequest(async (req, res) => {
 		message: 'Successfully logged out.'
 	})
 })
+
+export const updatePassword = handleRequest(async (req, res) => {
+	
+	return res.success({
+		//
+	})
+})
+
+export const resetPassword = handleRequest(async (req, res) => {
+	
+	return res.success({
+		//
+	})
+})
+
+export const sendPasswordResetEmail = handleRequest(async (req, res) => {
+	
+	return res.success({
+		//
+	})
+})

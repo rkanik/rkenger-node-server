@@ -13,13 +13,18 @@ export const findAll = handleRequest(async (req, res) => {
 
 	let { find, count, page, limit } = createFind(Conversations, req.query)
 	const total = await count
-	const conversations = await find.populate({
-		path: 'message',
-		options: {
-			limit: 1,
-			sort: { createdAt: -1 },
-		}
-	})
+	const conversations = await find
+		.populate({
+			path: 'messages',
+			options: {
+				limit: 1,
+				sort: {
+					createdAt: -1
+				},
+			}
+		})
+		.populate('members.user', 'username image')
+		.exec()
 
 	return res.success({
 		pagination: { page, limit, total },
@@ -80,12 +85,16 @@ export const findById = handleRequest(async (req, res) => {
 	let find = createFindOne(Conversations, req, true)
 	const conversation = await find
 		.populate({
-			path: 'message', options: {
+			path: 'messages',
+			options: {
 				limit: 1,
-				createdAt: -1
+				sort: {
+					createdAt: -1
+				}
 			}
 		})
 		.populate('members.user', 'username image')
+		.exec()
 
 	if (!conversation) return res.status(NOT_FOUND).error({
 		message: `Conversation not found with id '${req.params._id}'`

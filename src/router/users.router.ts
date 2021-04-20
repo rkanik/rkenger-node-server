@@ -7,13 +7,15 @@ const router = Router()
 router.route('/')
 	.get(verifyToken, UsersController.findAll)
 	.post(verifyToken, UsersController.create)
+	
+router.route('/requests')
+	// .get(verifyToken,UsersController)
 
 router.route('/:_id')
-	.get(UsersController.findById)
-	.put(UsersController.updateById)
-	.patch(UsersController.updateById)
-	.delete(UsersController.deleteById)
+	.get(verifyToken, UsersController.findById)
+	.put(verifyToken, UsersController.updateById)
+	.patch(verifyToken, UsersController.updateById)
+	.delete(verifyToken, UsersController.deleteById)
 
-router.route('/send-request')
 
 export default router
