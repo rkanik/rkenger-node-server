@@ -13,6 +13,7 @@ import {
 	handleRequest,
 	parseMongoError,
 	password as bPassword,
+	selectify,
 } from '@helpers'
 
 const {
@@ -22,6 +23,21 @@ const {
 	UNPROCESSABLE_ENTITY,
 	INTERNAL_SERVER_ERROR,
 } = statusCodes
+
+export const getProfile = handleRequest(async (req, res) => {
+	const authUser = req.user as IUserDoc
+
+	let user = await Users
+		.findById(authUser._id)
+		.select(selectify(req.query.select as string, 'password'))
+		.populate({
+			path: 'friends.user', options: {
+
+			}
+		})
+
+	return res.success(user)
+})
 
 export const logIn: VerifyFunction = async (username: string, password: string, done) => {
 
@@ -161,21 +177,21 @@ export const signout = handleRequest(async (req, res) => {
 })
 
 export const updatePassword = handleRequest(async (req, res) => {
-	
+
 	return res.success({
 		//
 	})
 })
 
 export const resetPassword = handleRequest(async (req, res) => {
-	
+
 	return res.success({
 		//
 	})
 })
 
 export const sendPasswordResetEmail = handleRequest(async (req, res) => {
-	
+
 	return res.success({
 		//
 	})

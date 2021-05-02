@@ -64,6 +64,12 @@ export enum EColors {
 	Blue = 'blue'
 }
 
+/**
+ * ===========================================================
+ * === === === === === === TYPES === === === === === ===
+ * ===========================================================
+ */
+
 export type TId = Types.ObjectId
 export type TMessageType = keyof typeof EMessageTypes
 export type TRoles = keyof typeof ERoles
@@ -83,7 +89,7 @@ export type Populated<M, K extends keyof M> =
 
 /**
  * ===========================================================
- * === === === === === === Interfaces === === === === === ===
+ * === === === === === === INTERFACES === === === === === ===
  * ===========================================================
  */
 
@@ -120,10 +126,13 @@ export interface IUser {
 	emailVerified: boolean
 	provider: TProviders
 	friends: {
-		friend: TId[] | IUserDoc[],
+		friend: TId | IUserDoc,
 		acceptedAt: Date
-	},
-	requests: TId[] | IUserDoc[],
+	}[],
+	requests: {
+		message: string,
+		user: TId | IUserDoc
+	}[],
 
 	image?: TId | IImage
 	externalId?: string
@@ -169,6 +178,7 @@ export interface IConversation {
 	color: TColor
 	emoji: string
 	isGroup: boolean
+	admin?: TId | IUserDoc
 	createdBy: TId | IUserDoc
 	mutedBy: {
 		user: TId | IUserDoc
@@ -178,9 +188,19 @@ export interface IConversation {
 	members: {
 		user: TId[] | IUserDoc[]
 		addedBy: TId | IUserDoc
-		removedAt?: Date
+		removedAt?: Date,
+		nickname?: string
 	}[]
 	messages: TId[] | IMessageDoc[]
+	count: {
+		members: Number,
+		messages: Number
+	},
+	request?: {
+		user: TId | IUserDoc,
+		acceptedAt?: Date,
+		cancelledAt?: Date
+	},
 
 	name?: string
 	image?: IImage

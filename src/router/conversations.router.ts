@@ -4,18 +4,29 @@ import { verifyToken } from '@middlewares'
 
 const router = Router()
 
+router.use(verifyToken)
+
 router.route('/')
-	.get(verifyToken, ConversationsController.findAll)
-	.post(verifyToken, ConversationsController.create)
+	.get(ConversationsController.findAll)
+	.post(ConversationsController.create)
 
 router.route('/:_id')
-	.get(verifyToken, ConversationsController.findById)
+	.get(ConversationsController.findById)
 	// 	.put(UserController.updateById)
 	// 	.patch(UserController.updateById)
-	.delete(verifyToken, ConversationsController.deleteById)
+	.delete(ConversationsController.deleteById)
 
-router.route("/:_cid/messages")
-	.get(verifyToken, MessagesController.findAll)
-	.post(verifyToken, MessagesController.create)
+// MESSAGES
+router.route("/:id/messages")
+	.get(MessagesController.find)
+	.post(MessagesController.send)
+
+router.route("/:convId/messages/:messageId")
+	.get(MessagesController.findById)
+	.patch(MessagesController.updateById)
+	.delete(MessagesController.deleteById)
+
+router.route("/:convId/messages/:messageId/unsent")
+	.delete(MessagesController.unsentById)
 
 export default router

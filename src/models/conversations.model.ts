@@ -13,6 +13,9 @@ const conversationSchemaFields: Record<keyof IConversation, any> = {
 		required: true,
 		type: Schema.Types.ObjectId
 	},
+	admin: {
+		type: Schema.Types.ObjectId
+	},
 	image: {
 		ref: 'Image',
 		type: Schema.Types.ObjectId,
@@ -57,8 +60,29 @@ const conversationSchemaFields: Record<keyof IConversation, any> = {
 			},
 			removedAt: {
 				type: Date,
+			},
+			nickname: {
+				type: String
 			}
 		}]
+	},
+	request: {
+		user: {
+			ref: 'User',
+			type: Schema.Types.ObjectId,
+		},
+		acceptedAt: Date,
+		cancelledAt: Date
+	},
+	count: {
+		default: {
+			members: 0,
+			messages: 0
+		},
+		type: {
+			messages: Number,
+			members: Number
+		}
 	},
 	messages: [{
 		ref: 'Message',

@@ -1,5 +1,6 @@
-import { Conversations, Messages } from '@models'
-import { handleRequest, parseMongoError } from "@helpers";
+import { Types } from 'mongoose'
+import { Conversations, Messages, Users } from '@models'
+import { handleRequest, paginate, parseMongoError, selectify } from "@helpers";
 import { IMessageDoc, IUserDoc, TId } from '@types';
 import StatusCodes from 'http-status-codes';
 
@@ -9,25 +10,7 @@ const {
 	INTERNAL_SERVER_ERROR
 } = StatusCodes
 
-export const findAll = handleRequest(async (req, res) => {
-	let select = req.query.select || ''
-	let conversation = await Conversations
-		.findById(req.params._cid).select('messages')
-		.populate({
-			path: 'messages',
-			options: {
-				select,
-				limit: 15,
-				sort: {
-					createdAt: -1
-				}
-			}
-		})
-		.exec();
-	return res.success(conversation)
-})
-
-export const create = handleRequest(async (req, res) => {
+export const send = handleRequest(async (req, res) => {
 
 	const user = req.user as IUserDoc
 	req.body.sender = user._id
@@ -41,35 +24,147 @@ export const create = handleRequest(async (req, res) => {
 
 	try {
 		const newMessage = await message.save() as (TId & IMessageDoc)
-		const conversation = await Conversations
-			.findOneAndUpdate({
-				_id: req.params._cid,
-				'members.user': newMessage.sender
-			}, {
-				$push: {
-					messages: newMessage._id
+		const conversation = await Conversations.findOne({
+			$or: [
+				{ _id: req.params.id },
+				{
+					$and: [
+						{ 'members.user': user._id },
+						{ 'members.user': req.params.id },
+						{ 'members': { $size: 2 } }
+					]
 				}
-			})
-			.select('messages')
-			.populate({
-				path: 'messages',
-				options: {
-					limit: 15,
-					sort: { createdAt: -1 },
-				}
-			}).exec()
-		if (!conversation) return res.status(NOT_FOUND).error({
-			message: `Conversation not found with id '${req.params._cid}' or you are not a member of this conversation`
+			]
 		})
 
-		if (conversation.messages) conversation.messages.unshift(newMessage)
-		else conversation.messages = [newMessage]
+		if (!conversation) {
 
-		return res.success(conversation)
+			// If there is no user with the id
+			const eUser = await Users.findById(req.params.id).select('_id')
+			if (!eUser) return res.status(NOT_FOUND).error({ message: `User Not Found.` })
+
+			// Creating new conversation
+			const nConv = new Conversations({
+				createdBy: user._id,
+				count: { messages: 1, members: 2 },
+				messages: [newMessage._id],
+				members: [
+					{ "user": user._id },
+					{ "user": req.params.id },
+				],
+			})
+
+			// If the user is my friend
+			const eFriend = await Users.findOne({ _id: user._id, 'friends.user': req.params.id }, { "friends.$": 1 })
+			if (!eFriend) nConv.request = { user: Types.ObjectId(user._id) }
+
+			// Saving conversation
+			// @TODO: Make your it's saved
+			await nConv.save()
+			return res.success({
+				_id: nConv._id,
+				messages: [newMessage]
+			})
+		}
+
+		let update = {
+			$inc: { 'count.messages': 1 },
+			$push: { messages: newMessage._id }
+		} as any
+
+		// If a request then accepting the request
+		if (conversation.request && !conversation.request.acceptedAt && conversation.request.user.toString() === req.params.id) {
+			update.request = { ...conversation.request, acceptedAt: new Date(), }
+		}
+
+		// Updating the conversation
+		let uConvRes = await conversation.update(update)
+		if (uConvRes.nModified) return res.success(newMessage)
+
+		// Deleting the message if failed to update conversation
+		// @TODO: make sure message is deleted
+		newMessage.delete()
+		return res.status(INTERNAL_SERVER_ERROR).error({
+			message: 'Error while sending message.'
+		})
 	}
 	catch (error) {
 		return res
 			.status(INTERNAL_SERVER_ERROR)
 			.error({ message: error.message })
 	}
+})
+
+export const find = handleRequest(async (req, res) => {
+
+	const user = req.user as IUserDoc
+	const conditions = {
+		$or: [
+			{
+				_id: req.params.id,
+				'members.user': user._id
+			},
+			{
+				$and: [
+					{ 'members.user': user._id },
+					{ 'members.user': req.params.id },
+					{ 'members': { $size: 2 } }
+				]
+			}
+		]
+	}
+
+	const select = selectify(req.query.select as string)
+	const { limit, skip, page } = paginate(req.query)
+
+	let conv = await Conversations
+		.findOne(conditions)
+		.select('messages count.messages')
+		.populate({
+			path: 'messages',
+			options: {
+				limit, skip, select,
+				sort: {
+					createdAt: -1
+				},
+			}
+		})
+		.exec()
+	if (!conv) return res.status(NOT_FOUND).error({
+		message: `Invalid id '${req.params.id}'`
+	})
+
+	return res.success({
+		page, perPage: limit,
+		total: conv.count.messages,
+		messages: conv.messages
+	})
+})
+
+export const findById = handleRequest(async (req, res) => {
+
+	return res.success({
+		data: 'find a message'
+	})
+})
+
+export const updateById = handleRequest(async (req, res) => {
+
+	return res.success({
+		data: 'update a message'
+	})
+})
+
+export const deleteById = handleRequest(async (req, res) => {
+
+	return res.success({
+		data: 'delete a message'
+	})
+})
+
+export const unsentById = handleRequest(async (req, res) => {
+
+	return res.success({
+		data: 'unsent a message'
+	})
 })

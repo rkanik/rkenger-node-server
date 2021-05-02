@@ -94,6 +94,7 @@ export const findById = handleRequest(async (req, res) => {
 			}
 		})
 		.populate('members.user', 'username image')
+		.populate('request.user', 'username image')
 		.exec()
 
 	if (!conversation) return res.status(NOT_FOUND).error({

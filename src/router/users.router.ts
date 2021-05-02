@@ -2,20 +2,21 @@ import { Router } from 'express'
 import { UsersController } from '@controllers'
 import { verifyToken } from '@middlewares'
 
-const router = Router()
+const router = Router().use(verifyToken)
 
 router.route('/')
-	.get(verifyToken, UsersController.findAll)
-	.post(verifyToken, UsersController.create)
-	
+	.get(UsersController.findAll)
+	.post(UsersController.create)
+
 router.route('/requests')
-	// .get(verifyToken,UsersController)
+// .get(verifyToken,UsersController)
 
 router.route('/:_id')
-	.get(verifyToken, UsersController.findById)
-	.put(verifyToken, UsersController.updateById)
-	.patch(verifyToken, UsersController.updateById)
-	.delete(verifyToken, UsersController.deleteById)
+	.get(UsersController.findById)
+	.put(UsersController.updateById)
+	.patch(UsersController.updateById)
+	.delete(UsersController.deleteById)
 
+router.post('/:id/request', UsersController.sendRequest)
 
 export default router

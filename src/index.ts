@@ -9,10 +9,11 @@ import cookieParser from 'cookie-parser'
 import path from 'path'
 import passport from './auth/passport'
 import router from './router'
+import morgan from 'morgan'
 import { createSocket } from './socket';
 import { createServer } from 'http'
 
-import { app, _baseUrl, _isProd, _port, _sessionSecret } from './consts';
+import { app, _baseUrl, _isDev, _isProd, _port, _sessionSecret } from './consts';
 
 import { mongodb } from './database'
 import { handleError } from './middlewares/error.middleware';
@@ -34,6 +35,7 @@ app.use(cookieParser())
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }))
+_isDev && app.use(morgan('dev'))
 
 app.use(session({
 	resave: true,

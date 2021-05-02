@@ -1,9 +1,29 @@
-import mongoose, { Schema } from 'mongoose'
+import { model, Schema } from 'mongoose'
 import { _regex } from '../regexs'
 import { EProviders, ERoles, IUser, IUserDoc } from '@types'
 import { password } from '@helpers'
 
-const userSchemaFields: Record<keyof IUser, any> = {
+const friendSchema = {
+	user: {
+		type: Schema.Types.ObjectId,
+		ref: 'User',
+	},
+	acceptedAt: Date,
+	blockedAt: Date
+}
+
+const friendRequestSchema = new Schema({
+	message: {
+		type: String,
+		required: true
+	},
+	user: {
+		type: Schema.Types.ObjectId,
+		ref: 'User',
+	}
+})
+
+const userSchema = new Schema({
 	name: {
 		type: String,
 		required: true,
@@ -30,20 +50,8 @@ const userSchemaFields: Record<keyof IUser, any> = {
 		type: String,
 		default: EProviders.Local
 	},
-	friends: [{
-		friend: {
-			type: Schema.Types.ObjectId,
-			ref: 'User',
-		},
-		acceptedAt: {
-			type: Date,
-			required: true
-		}
-	}],
-	requests: [{
-		type: Schema.Types.ObjectId,
-		ref: 'User',
-	}],
+	friends: [friendSchema],
+	requests: [friendRequestSchema],
 	image: {
 		type: Schema.Types.ObjectId,
 		ref: 'Image',
@@ -60,10 +68,8 @@ const userSchemaFields: Record<keyof IUser, any> = {
 	},
 	dob: Date,
 	gender: String,
-}
 
-const userSchema = new Schema(
-	userSchemaFields, {
+} as Record<keyof IUser, any>, {
 	timestamps: true,
 	autoIndex: true
 })
@@ -85,6 +91,5 @@ userSchema.pre('save', async function (next) {
 	return next()
 })
 
-export const Users = mongoose.model<IUserDoc>(
-	'User', userSchema
-)
+export const FriendRequest = model('FriendRequest', friendRequestSchema)
+export const Users = model<IUserDoc>('User', userSchema)

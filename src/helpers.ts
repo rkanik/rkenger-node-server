@@ -189,6 +189,35 @@ export const createFind = (Model: any, query: any): {
 
 }
 
+export const paginate = (query: any) => {
+	let page = query.page ? query.page * 1 : 1
+	let limit = query['per-page'] ? query['per-page'] * 1 : 15
+	let skip = (page - 1) * limit
+	return { skip, limit, page }
+}
+
+const exclusiveSelect = (select: string[], exclude: string | string[] | undefined) => {
+	if (exclude) select = select.concat(Array.isArray(exclude) ? exclude : [exclude])
+	return select.map(sel => '-' + sel).join(' ')
+}
+
+const inclusiveSelect = (select: string, exclude: string | string[] | undefined) => {
+	let newSelect = select.split(',')
+	if (exclude) newSelect = newSelect.filter(sel => {
+		return Array.isArray(exclude)
+			? !exclude.includes(sel)
+			: sel !== exclude
+	})
+	return !newSelect.length
+		? exclusiveSelect(['__v'], exclude)
+		: newSelect.join(' ')
+}
+
+export const selectify = (select: string | null, exclude?: string | string[]) => {
+	if (!select) return exclusiveSelect(['__v'], exclude)
+	return inclusiveSelect(select, exclude)
+}
+
 export const createFindOne = (Model: any, req: any, findById: boolean = false): Query<Document<any>[], Document<any>> => {
 
 	// Conditions

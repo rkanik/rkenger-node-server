@@ -5,7 +5,7 @@ export const app = express()
 export const _isProd = app.get('env') === 'production'
 export const _isDev = app.get('env') === 'development'
 
-export const _port = process.env.PORT || '3500'
+export const _port = process.env.PORT || '3600'
 export const _baseUrl = _isDev
 	? `http://localhost:${_port}`
 	: 'https://rk-passport-auth.herokuapp.com'
@@ -30,15 +30,15 @@ export enum _roles {
 export const _saltRounds = 10
 
 export const _time = (() => {
-  let sec = 1000
-  let min = sec * 60
-  let hour = min * 60
-  let day = hour * 24
-  let week = day * 7
-  let month = day * 30
-  let year = day * 365
-  return {
-    sec, min, hour,
-    day, week, month, year
-  }
+	let sec = 1000
+	let min = sec * 60
+	let hour = min * 60
+	let day = hour * 24
+	let week = day * 7
+	let month = day * 30
+	let year = day * 365
+	return {
+		sec, min, hour,
+		day, week, month, year
+	}
 })()

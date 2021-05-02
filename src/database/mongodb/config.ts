@@ -6,5 +6,6 @@ export const connectString = _mongodbConnectionString
 export const connectOptions: mongoose.ConnectOptions = {
 	useNewUrlParser: true,
 	useUnifiedTopology: true,
-	useCreateIndex: true
+	useCreateIndex: true,
+	useFindAndModify: true
 }
