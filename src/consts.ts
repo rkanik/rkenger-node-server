@@ -5,7 +5,7 @@ export const app = express()
 export const _isProd = app.get('env') === 'production'
 export const _isDev = app.get('env') === 'development'
 
-export const _port = process.env.PORT || '3600'
+export const _port = process.env.PORT || '3500'
 export const _baseUrl = _isDev
 	? `http://localhost:${_port}`
 	: 'https://rk-passport-auth.herokuapp.com'

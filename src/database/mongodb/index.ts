@@ -1,6 +1,8 @@
 import mongoose from 'mongoose'
 import { connectString, connectOptions } from './config'
 
+console.log(connectString)
+
 const connect = async () => {
 	try {
 		await mongoose.connect(

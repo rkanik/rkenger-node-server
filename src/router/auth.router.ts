@@ -21,7 +21,6 @@ router.post('/register', AuthController.signup)
 router.post('/logout', AuthController.signout);
 router.post('/refresh-token', AuthController.newToken)
 
-
 for (let { name, options } of authProviders) {
 	router.get(`/${name}`, options
 		? passport.authenticate(name, options)
