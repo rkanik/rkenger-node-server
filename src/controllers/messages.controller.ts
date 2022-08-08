@@ -6,6 +6,10 @@ import StatusCodes from "http-status-codes";
 
 const { NOT_FOUND, UNPROCESSABLE_ENTITY, INTERNAL_SERVER_ERROR } = StatusCodes;
 
+const findMessageById = async (_id: TId) => {
+  return await Messages.findById(_id).populate("sender");
+};
+
 export const send = handleRequest(async (req, res) => {
   const user = req.user as IUserDoc;
   req.body.sender = user._id;
@@ -78,7 +82,14 @@ export const send = handleRequest(async (req, res) => {
 
     // Updating the conversation
     let uConvRes = await conversation.update(update);
-    if (uConvRes.nModified) return res.success({ newMessage });
+    if (uConvRes.nModified) {
+      return res.success({
+        newMessage: await Messages.findById(newMessage._id).populate({
+          path: "sender",
+          select: "_id name username",
+        }),
+      });
+    }
 
     // Deleting the message if failed to update conversation
     // @TODO: make sure message is deleted

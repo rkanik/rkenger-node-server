@@ -23,7 +23,10 @@ export const findAll = handleRequest(async (req, res) => {
         },
       },
     })
-    .populate("members.user", "name username image")
+    .populate({
+      path: "members.user",
+      select: "name username image",
+    })
     .exec();
 
   return res.success({
@@ -89,8 +92,8 @@ export const findById = handleRequest(async (req, res) => {
         },
       },
     })
-    .populate("members.user", "username image")
-    .populate("request.user", "username image")
+    .populate("members.user", "name username image")
+    .populate("request.user", "name username image")
     .exec();
 
   if (!conversation)
