@@ -145,10 +145,10 @@ export const find = handleRequest(async (req, res) => {
 
   return res.success({
     messages: {
-      page,
       perPage: limit,
-      data: conv.messages,
+      currentPage: page,
       total: conv.count.messages,
+      data: conv.messages,
     },
   });
 });

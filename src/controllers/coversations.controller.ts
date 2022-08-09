@@ -30,8 +30,12 @@ export const findAll = handleRequest(async (req, res) => {
     .exec();
 
   return res.success({
-    pagination: { page, limit, total },
-    conversations,
+    conversations: {
+      total,
+      perPage: limit,
+      currentPage: page,
+      data: conversations,
+    },
   });
 });
 
