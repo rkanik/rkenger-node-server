@@ -10,8 +10,9 @@ import path from "path";
 import passport from "./auth/passport";
 import router from "./router";
 import morgan from "morgan";
-import { createSocket } from "./socket";
+
 import { createServer } from "http";
+import * as socket from "./socket";
 
 import {
   app,
@@ -30,9 +31,8 @@ const publicPath = _isProd
   : path.join(__dirname, "../client/dist");
 
 const httpServer = createServer(app);
-const socket = createSocket(httpServer);
 
-// socket.use()
+socket.createSocket(httpServer);
 
 app.use("/", express.static(publicPath));
 
@@ -65,7 +65,9 @@ const startServer = async () => {
     console.log("Server		: Running");
     console.log("URL 		:", _baseUrl);
 
-    await mongodb.connect();
+    socket.initializeEvents();
+
+    mongodb.connect();
   });
 };
 

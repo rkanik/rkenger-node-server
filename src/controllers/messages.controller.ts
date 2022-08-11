@@ -1,3 +1,4 @@
+import { io } from "../socket";
 import { Types } from "mongoose";
 import { Conversations, Messages, Users } from "@models";
 import { handleRequest, paginate, parseMongoError, selectify } from "@helpers";
@@ -83,12 +84,15 @@ export const send = handleRequest(async (req, res) => {
     // Updating the conversation
     let uConvRes = await conversation.update(update);
     if (uConvRes.nModified) {
-      return res.success({
-        newMessage: await Messages.findById(newMessage._id).populate({
-          path: "sender",
-          select: "_id name username",
-        }),
+      const messageWithSender = await Messages.findById(
+        newMessage._id
+      ).populate({
+        path: "sender",
+        select: "_id name username",
       });
+
+      io.emit(`message.${conversation._id}`, messageWithSender);
+      return res.success({ newMessage: messageWithSender });
     }
 
     // Deleting the message if failed to update conversation
