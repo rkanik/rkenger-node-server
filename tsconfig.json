@@ -1,0 +1,57 @@
+{
+	"compilerOptions": {
+		"baseUrl": "./src",
+		"emitDecoratorMetadata": true,
+		"esModuleInterop": true,
+		"experimentalDecorators": true,
+		"importHelpers": true,
+		"module": "commonjs",
+		"outDir": "dist",
+		"removeComments": true,
+		"sourceMap": true,
+		"strict": true,
+		"target": "es6",
+		"moduleResolution": "node",
+		"resolveJsonModule": true,
+		"types": [
+			"node"
+		],
+		"typeRoots": [
+			"node_modules/@types"
+		],
+		"paths": {
+			"@src": [
+				"/*"
+			],
+			"@consts": [
+				"consts.ts"
+			],
+			"@helpers": [
+				"helpers.ts"
+			],
+			"@types": [
+				"types.ts"
+			],
+			"@errors": [
+				"errors.ts"
+			],
+			"@router": [
+				"router/index.ts"
+			],
+			"@models": [
+				"models/index.ts"
+			],
+			"@controllers": [
+				"controllers/index.ts"
+			],
+			"@middlewares": [
+				"middlewares/index.ts"
+			],
+		}
+	},
+	"include": [
+		"src/**/*.ts",
+		"src/regexs.ts"
+	],
+	"exclude": [],
+}

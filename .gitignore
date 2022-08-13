@@ -1,0 +1,11 @@
+/node_modules
+
+# production
+/dist
+/data
+
+# env
+
+# MARKDOWN
+progress.md
+config.bat
