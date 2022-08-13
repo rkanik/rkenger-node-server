@@ -14,7 +14,8 @@ export const _sessionSecret = process.env.SESSION_SECRET || ''
 export const _cookieSecret = process.env.COOKIE_SECRET || ''
 export const _jwtSecret = process.env.JWT_SECRET || ''
 
-export const _mongodbConnectionString = process.env.MONGO_ATLAS || process.env.MONGO_LOCAL || ''
+export const _mongodbConnectionString =
+	process.env.MONGO_ATLAS || process.env.MONGO_LOCAL || ''
 
 export const _googleClientId = process.env.GOOGLE_CLIENT_ID || ''
 export const _googleClientSecret = process.env.GOOGLE_CLIENT_SECRET || ''
@@ -24,7 +25,7 @@ export const _githubClientSecret = process.env.GITHUB_CLIENT_SECRET || ''
 
 export enum _roles {
 	Admin = 'Admin',
-	User = 'User'
+	User = 'User',
 }
 
 export const _saltRounds = 10
@@ -38,7 +39,12 @@ export const _time = (() => {
 	let month = day * 30
 	let year = day * 365
 	return {
-		sec, min, hour,
-		day, week, month, year
+		sec,
+		min,
+		hour,
+		day,
+		week,
+		month,
+		year,
 	}
 })()
